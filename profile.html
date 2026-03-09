@@ -29,13 +29,13 @@
         </aside>
 
         <main class="feed" style="grid-column: span 2;">
-            <div class="profile-header" style="background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(220, 0, 0, 0.2); padding: 40px; margin-bottom: 30px;">
+            <div class="profile-header" style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px); border: 2px solid rgba(220, 0, 0, 0.2); padding: 40px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);">
                 <div style="display: flex; align-items: center; gap: 24px;">
                     <div class="avatar" style="width: 100px; height: 100px; font-size: 40px;" id="profileAvatar"></div>
                     <div style="flex: 1;">
-                        <h2 id="profileName" style="margin-bottom: 8px;"></h2>
-                        <p id="profileRole" style="font-size: 16px; color: var(--text-secondary-light); margin-bottom: 4px;"></p>
-                        <p id="profileDetails" style="font-size: 14px; color: var(--text-secondary-light);"></p>
+                        <h2 id="profileName" style="margin-bottom: 8px; color: #1A1A1A;"></h2>
+                        <p id="profileRole" style="font-size: 16px; color: rgba(0, 0, 0, 0.7); margin-bottom: 4px;"></p>
+                        <p id="profileDetails" style="font-size: 14px; color: rgba(0, 0, 0, 0.6);"></p>
                         <button class="btn-primary" style="width: auto; padding: 10px 24px; margin-top: 16px;" onclick="editProfile()">
                             Edit Profile
                         </button>
@@ -43,8 +43,8 @@
                 </div>
             </div>
 
-            <div style="background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(220, 0, 0, 0.2); padding: 30px;">
-                <h3 style="margin-bottom: 30px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">MY POSTS</h3>
+            <div style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px); border: 2px solid rgba(220, 0, 0, 0.2); padding: 30px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);">
+                <h3 style="margin-bottom: 30px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #1A1A1A;">MY POSTS</h3>
                 <div id="userPostsContainer"></div>
             </div>
         </main>

@@ -56,6 +56,10 @@ body.page-messages .background-wrapper {
     background-image: url('assets/jit-images/Sringeri.jpg');
 }
 
+body.page-connections .background-wrapper {
+    background-image: url('assets/jit-images/campus-main.jpg');
+}
+
 @keyframes backgroundPulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
