@@ -30,6 +30,10 @@ const researchSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  isApproved: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true

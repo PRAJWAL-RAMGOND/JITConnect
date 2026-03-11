@@ -55,11 +55,18 @@ function Sidebar() {
             </Link>
           </li>
           {isAdmin && (
-            <li className="nav-item">
-              <Link to="/admin" className={`nav-link ${location.pathname === '/admin' ? 'active' : ''}`}>
-                <span>⚙️</span> ADMIN PANEL
-              </Link>
-            </li>
+            <>
+              <li className="nav-item">
+                <Link to="/moderation" className={`nav-link ${location.pathname === '/moderation' ? 'active' : ''}`}>
+                  <span>🛡️</span> MODERATION
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to="/admin" className={`nav-link ${location.pathname === '/admin' ? 'active' : ''}`}>
+                  <span>⚙️</span> ADMIN PANEL
+                </Link>
+              </li>
+            </>
           )}
           <li className="nav-item">
             <a href="#" className="nav-link" onClick={handleLogout}>

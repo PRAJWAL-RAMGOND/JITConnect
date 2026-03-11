@@ -12,7 +12,7 @@ router.get('/', protect, async (req, res) => {
     const user = await User.findById(req.user._id).select('role department branch');
     
     // Build query based on user role
-    const query = { isActive: true };
+    const query = { isActive: true, isApproved: true };
     
     if (user.role === 'student') {
       query.$or = [
@@ -64,7 +64,8 @@ router.post('/', protect, adminOnly, async (req, res) => {
       researchProject,
       researchSkillsNeeded: researchSkillsNeeded || [],
       facultyMember: facultyMember || req.user._id,
-      createdBy: req.user._id
+      createdBy: req.user._id,
+      isApproved: true
     });
 
     const populatedAnnouncement = await Announcement.findById(announcement._id)

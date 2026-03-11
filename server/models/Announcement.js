@@ -37,6 +37,10 @@ const announcementSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  isApproved: {
+    type: Boolean,
+    default: true
+  },
   isActive: {
     type: Boolean,
     default: true

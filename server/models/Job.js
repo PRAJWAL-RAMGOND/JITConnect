@@ -57,7 +57,16 @@ const jobSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  postedByType: {
+    type: String,
+    enum: ['alumni', 'faculty', 'admin'],
+    default: 'alumni'
+  },
   isActive: {
+    type: Boolean,
+    default: true
+  },
+  isApproved: {
     type: Boolean,
     default: true
   },

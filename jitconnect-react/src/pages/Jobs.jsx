@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import { jobsAPI, announcementsAPI } from '../services/api';
+import { jobsAPI, announcementsAPI, researchAPI } from '../services/api';
 
 function Jobs() {
   const [jobs, setJobs] = useState([]);
@@ -30,6 +30,8 @@ function Jobs() {
   });
   const [recommendations, setRecommendations] = useState([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  const [researchOpportunities, setResearchOpportunities] = useState([]);
+  const [showResearch, setShowResearch] = useState(false);
 
   const navigate = useNavigate();
   const userData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -38,6 +40,7 @@ function Jobs() {
   useEffect(() => {
     fetchJobs();
     fetchRecommendations();
+    fetchResearchOpportunities();
   }, []);
 
   useEffect(() => {
@@ -71,6 +74,18 @@ function Jobs() {
       }
     } catch (err) {
       console.error('Error fetching recommendations:', err);
+    }
+  };
+
+  const fetchResearchOpportunities = async () => {
+    try {
+      const data = await researchAPI.getAll();
+      if (Array.isArray(data)) {
+        setResearchOpportunities(data);
+        setShowResearch(data.length > 0);
+      }
+    } catch (err) {
+      console.error('Error fetching research opportunities:', err);
     }
   };
 
@@ -313,6 +328,57 @@ function Jobs() {
                     <p style={{ margin: 0, fontSize: '12px', color: 'rgba(0,0,0,0.6)' }}>
                       {ann.content}
                     </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Research Opportunities */}
+          {showResearch && (
+            <div style={{ 
+              background: 'white', 
+              padding: '24px', 
+              marginBottom: '16px',
+              borderRadius: '8px',
+              boxShadow: '0 0 0 1px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.08)'
+            }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: '600', 
+                marginBottom: '16px',
+                color: '#000000'
+              }}>
+                🔬 RESEARCH OPPORTUNITIES
+              </h3>
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {researchOpportunities.map((research) => (
+                  <div key={research._id} style={{ 
+                    padding: '16px', 
+                    background: 'rgba(220, 0, 0, 0.05)',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(220, 0, 0, 0.1)'
+                  }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>
+                      {research.title}
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'rgba(0,0,0,0.6)' }}>
+                      {research.description}
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
+                      {research.skillsNeeded?.slice(0, 3).map((skill, index) => (
+                        <span key={index} style={{
+                          padding: '4px 10px',
+                          background: 'rgba(220, 0, 0, 0.1)',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          color: 'var(--ferrari-red)',
+                          borderRadius: '4px'
+                        }}>
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>

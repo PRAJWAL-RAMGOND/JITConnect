@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('role department');
-    const query = { isActive: true };
+    const query = { isActive: true, isApproved: true };
     
     if (user.role === 'department') {
       query.$or = [{ isActive: true }, { department: user.department }];
@@ -24,7 +24,7 @@ router.get('/', protect, async (req, res) => {
 router.post('/', protect, async (req, res) => {
   try {
     const { title, description, department, date, location } = req.body;
-    const event = await Event.create({ title, description, department, date, location });
+    const event = await Event.create({ title, description, department, date, location, isApproved: false });
     res.status(201).json(event);
   } catch (error) {
     res.status(400).json({ message: error.message });

@@ -8,6 +8,7 @@ import Connections from './pages/Connections';
 import Messages from './pages/Messages';
 import Jobs from './pages/Jobs';
 import Admin from './pages/Admin';
+import Moderation from './pages/Moderation';
 import './ferrari-styles.css';
 import './achievements-banner.css';
 
@@ -34,6 +35,7 @@ function App() {
         <Route path="/messages" element={<PrivateRoute><Messages /></PrivateRoute>} />
         <Route path="/jobs" element={<PrivateRoute><Jobs /></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
+        <Route path="/moderation" element={<PrivateRoute><Moderation /></PrivateRoute>} />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

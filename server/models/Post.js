@@ -1,30 +1,9 @@
 import mongoose from 'mongoose';
 
-const commentSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  text: {
-    type: String,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
-
 const postSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   content: {
     type: String,
-    required: [true, 'Post content is required']
+    required: [true, 'Content is required']
   },
   image: {
     type: String,
@@ -35,11 +14,39 @@ const postSchema = new mongoose.Schema({
     enum: ['general', 'internship', 'placement', 'research', 'event'],
     default: 'general'
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  comments: [commentSchema]
+  comments: [{
+    text: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    createdAt: { type: Date, default: Date.now }
+  }],
+  isApproved: {
+    type: Boolean,
+    default: true
+  },
+  isRestricted: {
+    type: Boolean,
+    default: false
+  },
+  restrictionReason: {
+    type: String,
+    default: ''
+  },
+  restrictedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 }, {
   timestamps: true
 });

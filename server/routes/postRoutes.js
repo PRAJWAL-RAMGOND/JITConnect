@@ -11,7 +11,7 @@ const router = express.Router();
 // @access  Private
 router.get('/', protect, async (req, res) => {
   try {
-    const posts = await Post.find()
+    const posts = await Post.find({ isApproved: true, isRestricted: false })
       .populate('user', 'name email role branch department company')
       .populate('comments.user', 'name role')
       .sort({ createdAt: -1 });
@@ -32,7 +32,8 @@ router.post('/', protect, async (req, res) => {
       user: req.user._id,
       content,
       category,
-      image
+      image,
+      isApproved: true
     });
 
     const populatedPost = await Post.findById(post._id)

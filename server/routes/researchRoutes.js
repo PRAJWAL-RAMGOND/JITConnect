@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('role');
-    const query = { isActive: true };
+    const query = { isActive: true, isApproved: true };
     
     if (user.role === 'faculty') {
       query.$or = [{ isActive: true }, { facultyMember: req.user._id }];
@@ -26,7 +26,8 @@ router.post('/', protect, async (req, res) => {
   try {
     const { title, description, department, skillsNeeded } = req.body;
     const research = await Research.create({
-      title, description, facultyMember: req.user._id, department, skillsNeeded: skillsNeeded || []
+      title, description, facultyMember: req.user._id, department, skillsNeeded: skillsNeeded || [],
+      isApproved: false
     });
     const populated = await Research.findById(research._id).populate('facultyMember', 'name email department designation');
     res.status(201).json(populated);

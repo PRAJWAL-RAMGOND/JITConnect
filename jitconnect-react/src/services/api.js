@@ -462,3 +462,163 @@ export const eventsAPI = {
     return response.json();
   },
 };
+// Moderation API
+export const moderationAPI = {
+  getPosts: async () => {
+    const response = await fetch(`${API_URL}/moderation/posts`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  approvePost: async (postId) => {
+    const response = await fetch(`${API_URL}/moderation/posts/${postId}/approve`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  restrictPost: async (postId, reason) => {
+    const response = await fetch(`${API_URL}/moderation/posts/${postId}/restrict`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ reason }),
+    });
+    return response.json();
+  },
+
+  deletePost: async (postId) => {
+    const response = await fetch(`${API_URL}/moderation/posts/${postId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  getJobs: async () => {
+    const response = await fetch(`${API_URL}/moderation/jobs`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  approveJob: async (jobId) => {
+    const response = await fetch(`${API_URL}/moderation/jobs/${jobId}/approve`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  restrictJob: async (jobId) => {
+    const response = await fetch(`${API_URL}/moderation/jobs/${jobId}/restrict`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  deleteJob: async (jobId) => {
+    const response = await fetch(`${API_URL}/moderation/jobs/${jobId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  getResearch: async () => {
+    const response = await fetch(`${API_URL}/moderation/research`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  approveResearch: async (researchId) => {
+    const response = await fetch(`${API_URL}/moderation/research/${researchId}/approve`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  restrictResearch: async (researchId) => {
+    const response = await fetch(`${API_URL}/moderation/research/${researchId}/restrict`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  deleteResearch: async (researchId) => {
+    const response = await fetch(`${API_URL}/moderation/research/${researchId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  getEvents: async () => {
+    const response = await fetch(`${API_URL}/moderation/events`, {
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  approveEvent: async (eventId) => {
+    const response = await fetch(`${API_URL}/moderation/events/${eventId}/approve`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  restrictEvent: async (eventId) => {
+    const response = await fetch(`${API_URL}/moderation/events/${eventId}/restrict`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+
+  deleteEvent: async (eventId) => {
+    const response = await fetch(`${API_URL}/moderation/events/${eventId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+      },
+    });
+    return response.json();
+  },
+};

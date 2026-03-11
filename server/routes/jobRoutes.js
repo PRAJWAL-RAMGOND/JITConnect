@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/', protect, async (req, res) => {
   try {
     const { type, workMode, search } = req.query;
-    let query = { isActive: true };
+    let query = { isActive: true, isApproved: true };
 
     if (type) query.type = type;
     if (workMode) query.workMode = workMode;
@@ -65,7 +65,9 @@ router.post('/', protect, async (req, res) => {
 
     const job = await Job.create({
       ...req.body,
-      postedBy: req.user._id
+      postedBy: req.user._id,
+      postedByType: req.user.role,
+      isApproved: false
     });
 
     const populatedJob = await Job.findById(job._id)
