@@ -350,6 +350,10 @@ p {
     display: none !important;
 }
 
+.visible {
+    display: block !important;
+}
+
 .role-fields {
     animation: fadeIn 0.5s ease;
 }
