@@ -69,6 +69,11 @@
                         <span class="nav-text">Content Moderation</span>
                         <span class="nav-badge warn">5</span>
                     </a>
+                    <a href="#" class="nav-item" onclick="showSection('comments')">
+                        <span class="nav-icon">💬</span>
+                        <span class="nav-text">All Comments</span>
+                        <span class="nav-badge" id="commentsCountBadge">0</span>
+                    </a>
                     <a href="#" class="nav-item" onclick="showSection('reports')">
                         <span class="nav-icon">⚠️</span>
                         <span class="nav-text">Reports</span>
@@ -410,6 +415,64 @@
 
                 <div id="flaggedContent" class="flagged-grid">
                     <!-- Flagged content will be loaded here -->
+                </div>
+            </section>
+
+            <!-- All Comments Section -->
+            <section id="comments-section" class="content-section">
+                <div class="section-header">
+                    <h1>All Comments</h1>
+                    <div class="header-actions">
+                        <select class="filter-select-small" id="commentFilterPost" onchange="filterComments()">
+                            <option value="all">All Posts</option>
+                        </select>
+                        <select class="filter-select-small" id="commentFilterSort" onchange="filterComments()">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                        <button class="btn-secondary" onclick="exportComments()">
+                            <span>📥</span> Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Comments Stats -->
+                <div class="log-stats">
+                    <div class="log-stat-card">
+                        <div class="log-stat-icon" style="background: #dbeafe;">💬</div>
+                        <div class="log-stat-content">
+                            <div class="log-stat-value" id="totalCommentsCount">0</div>
+                            <div class="log-stat-label">Total Comments</div>
+                        </div>
+                    </div>
+                    <div class="log-stat-card">
+                        <div class="log-stat-icon" style="background: #d1fae5;">📝</div>
+                        <div class="log-stat-content">
+                            <div class="log-stat-value" id="postsWithComments">0</div>
+                            <div class="log-stat-label">Posts with Comments</div>
+                        </div>
+                    </div>
+                    <div class="log-stat-card">
+                        <div class="log-stat-icon" style="background: #fef3c7;">👥</div>
+                        <div class="log-stat-content">
+                            <div class="log-stat-value" id="uniqueCommenters">0</div>
+                            <div class="log-stat-label">Unique Commenters</div>
+                        </div>
+                    </div>
+                    <div class="log-stat-card">
+                        <div class="log-stat-icon" style="background: #e0e7ff;">📊</div>
+                        <div class="log-stat-content">
+                            <div class="log-stat-value" id="avgCommentsPerPost">0</div>
+                            <div class="log-stat-label">Avg per Post</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments List -->
+                <div class="content-card">
+                    <div id="allCommentsContainer" class="all-comments-container">
+                        <!-- Comments will be loaded here -->
+                    </div>
                 </div>
             </section>
 

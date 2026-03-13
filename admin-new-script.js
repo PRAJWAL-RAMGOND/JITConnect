@@ -1017,3 +1017,242 @@ showSection = function(sectionName) {
         loadLogs();
     }
 };
+
+
+// Load All Comments
+function loadAllComments() {
+    const container = document.getElementById('allCommentsContainer');
+    if (!container) return;
+    
+    // Get all comments and posts
+    const postComments = JSON.parse(localStorage.getItem('postComments') || '{}');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    // Flatten all comments with post info
+    const allComments = [];
+    Object.keys(postComments).forEach(postId => {
+        const post = posts.find(p => p.id == postId);
+        if (post && postComments[postId]) {
+            postComments[postId].forEach(comment => {
+                allComments.push({
+                    ...comment,
+                    postId: postId,
+                    postAuthor: post.author,
+                    postContent: post.content.substring(0, 100) + '...'
+                });
+            });
+        }
+    });
+    
+    // Update stats
+    updateCommentsStats(allComments, posts);
+    
+    // Update badge
+    const badge = document.getElementById('commentsCountBadge');
+    if (badge) {
+        badge.textContent = allComments.length;
+    }
+    
+    // Sort by newest first
+    allComments.sort((a, b) => b.id - a.id);
+    
+    if (allComments.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; color: #64748b;">
+                <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                <h3 style="margin-bottom: 8px;">No comments yet</h3>
+                <p>Comments from posts will appear here</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Populate post filter dropdown
+    const postFilter = document.getElementById('commentFilterPost');
+    if (postFilter && postFilter.options.length === 1) {
+        posts.forEach(post => {
+            const option = document.createElement('option');
+            option.value = post.id;
+            option.textContent = `${post.author}: ${post.content.substring(0, 50)}...`;
+            postFilter.appendChild(option);
+        });
+    }
+    
+    container.innerHTML = allComments.map(comment => `
+        <div class="comment-card">
+            <div class="comment-card-header">
+                <div class="comment-card-author">
+                    <div class="comment-card-avatar">${comment.author.charAt(0)}</div>
+                    <div>
+                        <div class="comment-card-name">${comment.author}</div>
+                        <div class="comment-card-time">${comment.timestamp}</div>
+                    </div>
+                </div>
+                <div class="comment-card-actions">
+                    <button class="action-btn delete" onclick="deleteComment(${comment.postId}, ${comment.id})" title="Delete">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+            <div class="comment-card-text">${comment.text}</div>
+            <div class="comment-card-post">
+                <div class="comment-post-label">On post by ${comment.postAuthor}:</div>
+                <div class="comment-post-preview">${comment.postContent}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Update Comments Stats
+function updateCommentsStats(allComments, posts) {
+    // Total comments
+    document.getElementById('totalCommentsCount').textContent = allComments.length;
+    
+    // Posts with comments
+    const postsWithComments = new Set(allComments.map(c => c.postId)).size;
+    document.getElementById('postsWithComments').textContent = postsWithComments;
+    
+    // Unique commenters
+    const uniqueCommenters = new Set(allComments.map(c => c.author)).size;
+    document.getElementById('uniqueCommenters').textContent = uniqueCommenters;
+    
+    // Average comments per post
+    const avgComments = postsWithComments > 0 ? (allComments.length / postsWithComments).toFixed(1) : 0;
+    document.getElementById('avgCommentsPerPost').textContent = avgComments;
+}
+
+// Filter Comments
+function filterComments() {
+    const postFilter = document.getElementById('commentFilterPost').value;
+    const sortFilter = document.getElementById('commentFilterSort').value;
+    
+    const postComments = JSON.parse(localStorage.getItem('postComments') || '{}');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    let allComments = [];
+    Object.keys(postComments).forEach(postId => {
+        if (postFilter === 'all' || postFilter == postId) {
+            const post = posts.find(p => p.id == postId);
+            if (post && postComments[postId]) {
+                postComments[postId].forEach(comment => {
+                    allComments.push({
+                        ...comment,
+                        postId: postId,
+                        postAuthor: post.author,
+                        postContent: post.content.substring(0, 100) + '...'
+                    });
+                });
+            }
+        }
+    });
+    
+    // Sort
+    if (sortFilter === 'newest') {
+        allComments.sort((a, b) => b.id - a.id);
+    } else {
+        allComments.sort((a, b) => a.id - b.id);
+    }
+    
+    const container = document.getElementById('allCommentsContainer');
+    if (!container) return;
+    
+    if (allComments.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; color: #64748b;">
+                <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                <h3 style="margin-bottom: 8px;">No comments found</h3>
+                <p>Try changing the filter</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = allComments.map(comment => `
+        <div class="comment-card">
+            <div class="comment-card-header">
+                <div class="comment-card-author">
+                    <div class="comment-card-avatar">${comment.author.charAt(0)}</div>
+                    <div>
+                        <div class="comment-card-name">${comment.author}</div>
+                        <div class="comment-card-time">${comment.timestamp}</div>
+                    </div>
+                </div>
+                <div class="comment-card-actions">
+                    <button class="action-btn delete" onclick="deleteComment(${comment.postId}, ${comment.id})" title="Delete">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+            <div class="comment-card-text">${comment.text}</div>
+            <div class="comment-card-post">
+                <div class="comment-post-label">On post by ${comment.postAuthor}:</div>
+                <div class="comment-post-preview">${comment.postContent}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Delete Comment
+function deleteComment(postId, commentId) {
+    if (!confirm('Delete this comment?')) return;
+    
+    const postComments = JSON.parse(localStorage.getItem('postComments') || '{}');
+    
+    if (postComments[postId]) {
+        postComments[postId] = postComments[postId].filter(c => c.id !== commentId);
+        
+        // Update posts comment count
+        const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+        const post = posts.find(p => p.id == postId);
+        if (post) {
+            post.comments = postComments[postId].length;
+            localStorage.setItem('posts', JSON.stringify(posts));
+        }
+        
+        localStorage.setItem('postComments', JSON.stringify(postComments));
+        loadAllComments();
+        showNotification('Comment deleted successfully', 'success');
+    }
+}
+
+// Export Comments
+function exportComments() {
+    const postComments = JSON.parse(localStorage.getItem('postComments') || '{}');
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    
+    let csvContent = 'Post Author,Post Content,Comment Author,Comment Text,Timestamp\n';
+    
+    Object.keys(postComments).forEach(postId => {
+        const post = posts.find(p => p.id == postId);
+        if (post && postComments[postId]) {
+            postComments[postId].forEach(comment => {
+                csvContent += `"${post.author}","${post.content.replace(/"/g, '""')}","${comment.author}","${comment.text.replace(/"/g, '""')}","${comment.timestamp}"\n`;
+            });
+        }
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'comments_export.csv';
+    a.click();
+    
+    showNotification('Comments exported successfully!', 'success');
+}
+
+// Update showSection to load comments
+const originalShowSection2 = showSection;
+showSection = function(sectionName) {
+    if (typeof originalShowSection2 === 'function') {
+        originalShowSection2.call(this, sectionName);
+    }
+    
+    if (sectionName === 'analytics') {
+        setTimeout(loadAnalytics, 100);
+    } else if (sectionName === 'logs') {
+        loadLogs();
+    } else if (sectionName === 'comments') {
+        loadAllComments();
+    }
+};

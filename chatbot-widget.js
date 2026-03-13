@@ -132,9 +132,11 @@ class ChatbotWidget {
             const tooltip = document.querySelector('.chatbot-tooltip');
             if (tooltip) {
                 tooltip.style.opacity = '1';
+                tooltip.style.transform = 'translateY(0)';
                 setTimeout(() => {
                     tooltip.style.opacity = '0';
-                }, 3000);
+                    tooltip.style.transform = 'translateY(10px)';
+                }, 5000);
             }
         }, 2000);
     }
@@ -324,3 +326,325 @@ if (document.readyState === 'loading') {
 } else {
     chatbotWidget = new ChatbotWidget();
 }
+
+
+// ========================================
+// ENHANCED CHATBOT FEATURES
+// ========================================
+
+// Smart Response Suggestions
+class SmartResponseEngine {
+    constructor() {
+        this.responses = {
+            greeting: [
+                "Hello! How can I help you today?",
+                "Hi there! Ready to find your perfect alumni match?",
+                "Welcome! Let's connect you with amazing alumni."
+            ],
+            career: [
+                "Career guidance is crucial! Let me connect you with alumni who've been in your shoes.",
+                "Great choice! Our alumni have incredible career insights to share.",
+                "I'll find alumni who can guide you on your career path."
+            ],
+            internship: [
+                "Internships are a great way to start! Let me find alumni who can help.",
+                "Looking for internship advice? I know just the right alumni for you.",
+                "Our alumni have amazing internship experiences to share!"
+            ],
+            skills: [
+                "Skill development is key to success! Let's find the right mentors.",
+                "I'll connect you with alumni who excel in those skills.",
+                "Great focus on learning! Our alumni can guide you."
+            ],
+            company: [
+                "Company insights from alumni are invaluable! Let me help.",
+                "I'll find alumni working at your target companies.",
+                "Our alumni network spans amazing companies!"
+            ]
+        };
+    }
+    
+    getResponse(category) {
+        const responses = this.responses[category] || this.responses.greeting;
+        return responses[Math.floor(Math.random() * responses.length)];
+    }
+}
+
+const smartEngine = new SmartResponseEngine();
+
+// Enhanced Message with Typing Effect
+ChatbotWidget.prototype.addMessageWithTyping = function(text, sender, quickReplies = null) {
+    const messagesContainer = document.getElementById('chatbotMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const avatar = sender === 'bot' ? '🤖' : '👤';
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            <p class="typing-text"></p>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Typing effect
+    const textElement = messageDiv.querySelector('.typing-text');
+    let index = 0;
+    
+    const typeInterval = setInterval(() => {
+        if (index < text.length) {
+            textElement.textContent += text.charAt(index);
+            index++;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } else {
+            clearInterval(typeInterval);
+            
+            // Add quick replies after typing completes
+            if (quickReplies) {
+                const quickReplyHTML = `
+                    <div class="quick-replies">
+                        ${quickReplies.map(reply => {
+                            if (reply === 'Open Full Matcher') {
+                                return `<button class="quick-reply-btn" onclick="window.location.href='chatbot.html'">${reply}</button>`;
+                            }
+                            return `<button class="quick-reply-btn" onclick="chatbotWidget.handleQuickReply('${reply}')">${reply}</button>`;
+                        }).join('')}
+                    </div>
+                `;
+                messageDiv.querySelector('.message-content').insertAdjacentHTML('beforeend', quickReplyHTML);
+            }
+        }
+    }, 30);
+};
+
+// Conversation History
+ChatbotWidget.prototype.saveConversation = function() {
+    const messages = Array.from(document.querySelectorAll('.message')).map(msg => ({
+        sender: msg.classList.contains('user-message') ? 'user' : 'bot',
+        text: msg.querySelector('p').textContent,
+        timestamp: new Date().toISOString()
+    }));
+    
+    localStorage.setItem('chatbotHistory', JSON.stringify(messages));
+};
+
+ChatbotWidget.prototype.loadConversation = function() {
+    const history = JSON.parse(localStorage.getItem('chatbotHistory') || '[]');
+    
+    if (history.length > 0) {
+        const messagesContainer = document.getElementById('chatbotMessages');
+        messagesContainer.innerHTML = '';
+        
+        history.forEach(msg => {
+            this.addMessage(msg.text, msg.sender);
+        });
+    }
+};
+
+// Voice Input Support
+ChatbotWidget.prototype.enableVoiceInput = function() {
+    if (!('webkitSpeechRecognition' in window)) return;
+    
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    const voiceBtn = document.createElement('button');
+    voiceBtn.className = 'voice-input-btn';
+    voiceBtn.innerHTML = '🎤';
+    voiceBtn.style.cssText = `
+        position: absolute;
+        right: 60px;
+        bottom: 12px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    `;
+    
+    voiceBtn.addEventListener('click', () => {
+        recognition.start();
+        voiceBtn.innerHTML = '🔴';
+    });
+    
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('chatbotInput').value = transcript;
+        voiceBtn.innerHTML = '🎤';
+    };
+    
+    recognition.onerror = () => {
+        voiceBtn.innerHTML = '🎤';
+    };
+    
+    const inputArea = document.querySelector('.chatbot-modal-input-area');
+    if (inputArea) {
+        inputArea.style.position = 'relative';
+        inputArea.appendChild(voiceBtn);
+    }
+};
+
+// Sentiment Analysis for Better Responses
+ChatbotWidget.prototype.analyzeSentiment = function(text) {
+    const positiveWords = ['great', 'awesome', 'excellent', 'good', 'thanks', 'perfect'];
+    const negativeWords = ['bad', 'poor', 'terrible', 'hate', 'worst', 'confused'];
+    
+    const words = text.toLowerCase().split(' ');
+    let sentiment = 'neutral';
+    
+    if (words.some(word => positiveWords.includes(word))) {
+        sentiment = 'positive';
+    } else if (words.some(word => negativeWords.includes(word))) {
+        sentiment = 'negative';
+    }
+    
+    return sentiment;
+};
+
+// Enhanced Send Message with Sentiment
+const originalSendMessage = ChatbotWidget.prototype.sendMessage;
+ChatbotWidget.prototype.sendMessage = function() {
+    const input = document.getElementById('chatbotInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    const sentiment = this.analyzeSentiment(message);
+    
+    this.addMessage(message, 'user');
+    input.value = '';
+    
+    this.showTypingIndicator();
+    
+    setTimeout(() => {
+        this.hideTypingIndicator();
+        
+        let response = "That's interesting! Let me find the best alumni matches for you.";
+        
+        if (sentiment === 'positive') {
+            response = "I'm glad you're excited! Let me connect you with amazing alumni who can help.";
+        } else if (sentiment === 'negative') {
+            response = "I understand your concerns. Let me find alumni who can provide guidance and support.";
+        }
+        
+        this.addMessageWithTyping(response, 'bot', ['Open Full Matcher', 'Continue Here']);
+    }, 1500);
+    
+    this.saveConversation();
+};
+
+// Chatbot Analytics
+ChatbotWidget.prototype.trackInteraction = function(action, data = {}) {
+    const analytics = JSON.parse(localStorage.getItem('chatbotAnalytics') || '[]');
+    
+    analytics.push({
+        action,
+        data,
+        timestamp: new Date().toISOString(),
+        user: this.currentUser.email
+    });
+    
+    localStorage.setItem('chatbotAnalytics', JSON.stringify(analytics));
+};
+
+// Enhanced Start Conversation with Analytics
+const originalStartConversation = ChatbotWidget.prototype.startConversation;
+ChatbotWidget.prototype.startConversation = function(interest) {
+    this.trackInteraction('start_conversation', { interest });
+    originalStartConversation.call(this, interest);
+};
+
+// Suggested Questions Feature
+ChatbotWidget.prototype.showSuggestedQuestions = function() {
+    const suggestions = [
+        "How do I prepare for interviews?",
+        "What skills should I learn?",
+        "Tell me about internship opportunities",
+        "How to network with alumni?",
+        "Career advice for freshers"
+    ];
+    
+    const suggestionsDiv = document.createElement('div');
+    suggestionsDiv.className = 'suggested-questions';
+    suggestionsDiv.style.cssText = `
+        padding: 15px;
+        background: rgba(139, 92, 246, 0.05);
+        border-radius: 12px;
+        margin: 10px 0;
+    `;
+    
+    suggestionsDiv.innerHTML = `
+        <p style="font-size: 12px; color: #888; margin-bottom: 10px;">Suggested questions:</p>
+        ${suggestions.map(q => `
+            <button onclick="chatbotWidget.askQuestion('${q}')" style="
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 8px 12px;
+                margin: 5px 0;
+                background: white;
+                border: 1px solid rgba(139, 92, 246, 0.2);
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 13px;
+                transition: all 0.2s ease;
+            ">${q}</button>
+        `).join('')}
+    `;
+    
+    return suggestionsDiv;
+};
+
+ChatbotWidget.prototype.askQuestion = function(question) {
+    document.getElementById('chatbotInput').value = question;
+    this.sendMessage();
+};
+
+// Initialize enhanced features
+setTimeout(() => {
+    if (chatbotWidget && chatbotWidget.currentUser) {
+        chatbotWidget.enableVoiceInput();
+        chatbotWidget.trackInteraction('widget_loaded');
+    }
+}, 1000);
+
+// Periodic engagement prompts
+setInterval(() => {
+    if (chatbotWidget && !chatbotWidget.isOpen) {
+        const fab = document.getElementById('chatbotFab');
+        if (fab) {
+            fab.style.animation = 'bounce 0.5s ease';
+            setTimeout(() => {
+                fab.style.animation = '';
+            }, 500);
+        }
+    }
+}, 60000); // Every minute
+
+// Add bounce animation
+const bounceStyle = document.createElement('style');
+bounceStyle.textContent = `
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+`;
+document.head.appendChild(bounceStyle);

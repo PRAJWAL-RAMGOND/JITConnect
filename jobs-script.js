@@ -408,3 +408,336 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+// ========================================
+// ENHANCED JOBS FEATURES
+// ========================================
+
+// Advanced Search with Filters
+function advancedJobSearch() {
+    const searchQuery = document.getElementById('jobSearch').value.toLowerCase();
+    const locationFilter = document.getElementById('locationFilter')?.value || 'all';
+    const salaryFilter = document.getElementById('salaryFilter')?.value || 'all';
+    
+    let filteredJobs = jobsDatabase;
+    
+    // Apply current filter
+    if (currentFilter !== 'all') {
+        filteredJobs = filteredJobs.filter(job => {
+            if (currentFilter === 'oncampus') return job.oncampus;
+            return job.type === currentFilter;
+        });
+    }
+    
+    // Apply search
+    if (searchQuery) {
+        filteredJobs = filteredJobs.filter(job => 
+            job.title.toLowerCase().includes(searchQuery) ||
+            job.company.toLowerCase().includes(searchQuery) ||
+            job.location.toLowerCase().includes(searchQuery) ||
+            job.skills.some(skill => skill.toLowerCase().includes(searchQuery))
+        );
+    }
+    
+    // Apply location filter
+    if (locationFilter !== 'all') {
+        filteredJobs = filteredJobs.filter(job => 
+            job.location.toLowerCase().includes(locationFilter.toLowerCase())
+        );
+    }
+    
+    // Apply salary filter
+    if (salaryFilter !== 'all') {
+        filteredJobs = filteredJobs.filter(job => {
+            const salary = parseInt(job.salary.match(/\d+/)[0]);
+            switch(salaryFilter) {
+                case 'low': return salary < 15;
+                case 'medium': return salary >= 15 && salary < 25;
+                case 'high': return salary >= 25;
+                default: return true;
+            }
+        });
+    }
+    
+    displayFilteredJobs(filteredJobs);
+}
+
+function displayFilteredJobs(jobs) {
+    const container = document.getElementById('jobsContainer');
+    container.innerHTML = '';
+    
+    if (jobs.length === 0) {
+        container.innerHTML = `
+            <div class="jobs-empty-state">
+                <div class="jobs-empty-state-icon">🔍</div>
+                <h3>No jobs found</h3>
+                <p>Try adjusting your filters or search query</p>
+            </div>
+        `;
+        return;
+    }
+    
+    jobs.forEach(job => {
+        const jobCard = createJobCard(job);
+        container.appendChild(jobCard);
+    });
+}
+
+// Job Recommendations based on user profile
+function getPersonalizedRecommendations() {
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const userBranch = userData.branch || 'CSE';
+    
+    // Filter jobs based on user's branch and interests
+    const recommended = jobsDatabase.filter(job => {
+        // Prioritize on-campus jobs
+        if (job.oncampus) return true;
+        
+        // Match branch-related skills
+        const branchSkills = {
+            'CSE': ['Java', 'Python', 'JavaScript', 'React', 'Node.js'],
+            'ISE': ['Python', 'SQL', 'Analytics', 'Cloud'],
+            'ECE': ['Embedded', 'IoT', 'Hardware', 'VLSI']
+        };
+        
+        const relevantSkills = branchSkills[userBranch] || [];
+        return job.skills.some(skill => 
+            relevantSkills.some(rs => skill.toLowerCase().includes(rs.toLowerCase()))
+        );
+    });
+    
+    return recommended.slice(0, 5);
+}
+
+// Job Alerts System
+function setupJobAlerts() {
+    const alertBtn = document.createElement('button');
+    alertBtn.className = 'job-alert-btn';
+    alertBtn.innerHTML = '🔔 Set Job Alert';
+    alertBtn.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        right: 30px;
+        padding: 15px 25px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+        transition: all 0.3s ease;
+        z-index: 999;
+    `;
+    
+    alertBtn.addEventListener('click', function() {
+        showToast('Job alerts enabled! You\'ll be notified of new opportunities.', 'success');
+    });
+    
+    alertBtn.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-3px)';
+        this.style.boxShadow = '0 12px 32px rgba(139, 92, 246, 0.5)';
+    });
+    
+    alertBtn.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 8px 24px rgba(139, 92, 246, 0.4)';
+    });
+    
+    document.body.appendChild(alertBtn);
+}
+
+// Job Comparison Feature
+let comparisonList = [];
+
+function addToComparison(jobId) {
+    if (comparisonList.includes(jobId)) {
+        comparisonList = comparisonList.filter(id => id !== jobId);
+        showToast('Removed from comparison', 'info');
+    } else if (comparisonList.length < 3) {
+        comparisonList.push(jobId);
+        showToast('Added to comparison', 'success');
+    } else {
+        showToast('Maximum 3 jobs can be compared', 'warning');
+    }
+    
+    updateComparisonBadge();
+}
+
+function updateComparisonBadge() {
+    let badge = document.getElementById('comparisonBadge');
+    
+    if (!badge && comparisonList.length > 0) {
+        badge = document.createElement('div');
+        badge.id = 'comparisonBadge';
+        badge.style.cssText = `
+            position: fixed;
+            bottom: 140px;
+            right: 30px;
+            padding: 12px 20px;
+            background: #ef4444;
+            color: white;
+            border-radius: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            z-index: 999;
+            animation: bounceIn 0.5s ease;
+        `;
+        badge.innerHTML = `Compare (${comparisonList.length})`;
+        badge.addEventListener('click', showComparison);
+        document.body.appendChild(badge);
+    } else if (badge) {
+        if (comparisonList.length === 0) {
+            badge.remove();
+        } else {
+            badge.innerHTML = `Compare (${comparisonList.length})`;
+        }
+    }
+}
+
+function showComparison() {
+    const jobs = comparisonList.map(id => jobsDatabase.find(j => j.id === id));
+    
+    // Create comparison modal
+    const modal = document.createElement('div');
+    modal.className = 'comparison-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 1000px; width: 100%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Job Comparison</h2>
+                <button onclick="this.closest('.comparison-modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(${jobs.length}, 1fr); gap: 20px;">
+                ${jobs.map(job => `
+                    <div style="border: 2px solid #8b5cf6; border-radius: 12px; padding: 20px;">
+                        <h3>${job.title}</h3>
+                        <p><strong>${job.company}</strong></p>
+                        <p>📍 ${job.location}</p>
+                        <p>💰 ${job.salary}</p>
+                        <p>📊 ${job.experience}</p>
+                        <div style="margin-top: 15px;">
+                            <strong>Skills:</strong>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;">
+                                ${job.skills.map(skill => `<span style="background: rgba(139, 92, 246, 0.1); padding: 4px 8px; border-radius: 8px; font-size: 12px;">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Enhanced Job Card with More Actions
+const originalCreateJobCard = createJobCard;
+createJobCard = function(job) {
+    const card = originalCreateJobCard(job);
+    
+    // Add comparison button
+    const compareBtn = document.createElement('button');
+    compareBtn.className = 'job-action-btn';
+    compareBtn.innerHTML = '⚖️';
+    compareBtn.title = 'Compare';
+    compareBtn.onclick = () => addToComparison(job.id);
+    
+    const actionsDiv = card.querySelector('.job-card-actions');
+    if (actionsDiv) {
+        actionsDiv.appendChild(compareBtn);
+    }
+    
+    return card;
+};
+
+// Job Application Tracking
+function trackApplication(jobId) {
+    const applications = JSON.parse(localStorage.getItem('applicationTracking') || '{}');
+    
+    applications[jobId] = {
+        appliedDate: new Date().toISOString(),
+        status: 'pending',
+        lastUpdated: new Date().toISOString()
+    };
+    
+    localStorage.setItem('applicationTracking', JSON.stringify(applications));
+}
+
+// Enhanced apply job with tracking
+const originalApplyJob = applyJob;
+applyJob = function(jobId) {
+    originalApplyJob(jobId);
+    trackApplication(jobId);
+};
+
+// Initialize enhanced features
+document.addEventListener('DOMContentLoaded', function() {
+    setupJobAlerts();
+    
+    // Add toast notification system
+    if (!document.getElementById('toastContainer')) {
+        const toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+});
+
+// Toast Notification for Jobs Page
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icons = {
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️',
+        warning: '⚠️'
+    };
+    
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `;
+    
+    toast.style.cssText = `
+        background: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease;
+        margin-bottom: 10px;
+        border-left: 4px solid ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}

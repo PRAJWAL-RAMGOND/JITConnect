@@ -2092,3 +2092,124 @@ html {
 .glow-on-hover:hover {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
 }
+
+
+/* All Comments Section */
+.all-comments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.comment-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid #8b5cf6;
+    transition: all 0.3s ease;
+    animation: slideInUp 0.4s ease;
+}
+
+.comment-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+.comment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.comment-card-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comment-card-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.comment-card-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #0f172a;
+}
+
+.comment-card-time {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.comment-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.comment-card-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: 8px;
+}
+
+.comment-card-post {
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.comment-post-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.comment-post-preview {
+    font-size: 13px;
+    color: #64748b;
+    font-style: italic;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 6px;
+    border-left: 3px solid #e2e8f0;
+}
+
+/* Comments Stats Enhancement */
+.log-stat-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.log-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .comment-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .comment-card-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
